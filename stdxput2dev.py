@@ -1,3 +1,4 @@
+import os
 import sys
 import struct
 import fcntl
@@ -10,7 +11,7 @@ def error(*args):
 def create_tunnel_interface(name):
     name = str(name)
     if not name.isalnum():
-        error("name %s not a legal name for tunnel interface", %name)
+        error("name %s not a legal name for tunnel interface" % name)
         sys.exit(1)
     TUNSETIFF = 0x400454ca
     IFF_TUN = 0x0001
@@ -33,10 +34,10 @@ def create_tunnel_interface(name):
 
 def tunnel_between(ifacename, ip_local, ip_remote):
     """non-platform-independent way to configure point2point tunnel"""
-    cmd = 'ifconfig %s promisc %s pointopoint %s up' % (ifacename, ip_local, ip_remote)
+    cmd = ['ifconfig',ifacename,'promisc',ip_local,'pointopoint',ip_remote,'up']
     retcode = call(cmd)
     if retcode:
-        error('executing\n%s\nFAILED. Please run manually to find out why' % cmd)
+        error('executing\n%s\nFAILED. Please run manually to find out why' % " ".join(cmd))
         sys.exit(3)
 
 def fpipe(fromfile, tofile, blocksize=0):
@@ -49,10 +50,9 @@ def fpipe(fromfile, tofile, blocksize=0):
         if not blocksize:
             r = select([fromfile], [],[])[0][0]
             select([],[tofile],[])[1][0].write(r.read())
-            tofile.flush()
         else:
             tofile.write(fromfile.read(blocksize))
-            tofile.flush()
+        tofile.flush()
 
 if __name__ == '__main__':
     from multiprocessing import Process
@@ -60,12 +60,14 @@ if __name__ == '__main__':
         error("usage: python %s DEVICE LOCALIP REMOTEIP" % sys.argv[0])
         sys.exit(4)
     tun = create_tunnel_interface(sys.argv[1])
+    import time
+    time.sleep(1)
     tunnel_between(sys.argv[1], sys.argv[2], sys.argv[3])
     # copy stdin to the device:
-    stdin2dev = Process(target=fpipe, args=(sys.stdin,tun))
+    stdin2dev = Process(target=fpipe, args=(sys.stdin,tun,512))
     stdin2dev.start()
     # read dev to stdout
-    stdout2dev = Process(target=fpipe, args=(tun,sys.stdout))
+    stdout2dev = Process(target=fpipe, args=(tun,sys.stdout,512))
     stdout2dev.start()
 
     stdin2dev.join()
