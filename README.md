@@ -35,6 +35,10 @@ Now test the tunnel by:
 
     ping 10.0.0.2
 
+Or possibly:
+
+    ssh 10.0.0.2
+
 Obviously, you have to be root on the remote host. (Alternatively, you might do some magic with sudo.) Also, if you want to use the remote host for browsing the internet, you need to setup routing and masquerading, which is not within the scope of this README
 
 I sometimes use the following contraction, which only uses a single shell window at a time:
@@ -49,7 +53,7 @@ If none of the above work for you, make sure you are
 ## Example Usage: CurveCP ##
 
 ### DISCLAIMER: ###
-*For some reason, this tunnel is not usable for most "normal" TCP traffic. ICMP ping works along with some very toy-ish netcat TCP. For the rest, I am slightly out of my league here, fork me!*
+*For some reason, when used with CurveCP, this tunnel is not usable for most "normal" TCP traffic. ICMP ping works along with some very toy-ish netcat TCP. For the rest, I am slightly out of my league here, fork me!*
 
 Here is how you might try to establish a CurveCP-based tunnel. Adapted from the CurveCP README:
 
