@@ -14,9 +14,9 @@ It goes without saying that LOCALIP is the remote side's REMOTEIP and the other 
 
 ## DISCLAIMER ##
 
-**For reasons that are unclear to me, I have so far only been able to create a fully-working tunnel using an SSH-backend as detailled below.
+**For reasons that are unclear to me, I have so far only been able to create a fully-working tunnel using an SSH-backend as detailled below.**
 
-When using plain netcat as backend seems to result in some race condition, where both sides end up waiting for each other to send (flush?). ICMP ping works fine using _any_ transport backend I tried, but any non-trivial TCP traffic sooner or later reaches deadlock.**
+**When using plain netcat as backend seems to result in some race condition, where both sides end up waiting for each other to send (flush?). ICMP ping works fine using _any_ transport backend I tried, but any non-trivial TCP traffic sooner or later reaches deadlock.**
 
 ## Example Usage: SSH-based VPN tunnel ##
 
