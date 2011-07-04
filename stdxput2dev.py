@@ -19,7 +19,7 @@ def create_tunnel_interface(name):
     IFF_NO_PI = 0x1000
 
     # TODO: how does this work under *BSD?
-    tun = open('/dev/net/tun', 'r+b')
+    tun = open('/dev/net/tun', 'wr+b')
     
     try:
         ifr = struct.pack('16sH', name, IFF_TUN | IFF_NO_PI)
@@ -43,16 +43,28 @@ def tunnel_between(ifacename, ip_local, ip_remote):
 def fpipe(fromfile, tofile, blocksize=0):
     if not blocksize: 
         from select import select
-        for fd in [fromfile.fileno(), tofile.fileno()]:
+        for fd in [fromfile.fileno()]:#, tofile.fileno()]:
             fl = fcntl.fcntl(fd, fcntl.F_GETFL)
             fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
     while not fromfile.closed and not tofile.closed:
+        #error("waiting for %s" % fromfile.name)
         if not blocksize:
             r = select([fromfile], [],[])[0][0]
             select([],[tofile],[])[1][0].write(r.read())
         else:
-            tofile.write(fromfile.read(blocksize))
-        tofile.flush()
+            tofile.write(os.read(fromfile.fileno(), blocksize))
+        try: 
+            tofile.flush()
+        except IOError, e:
+            error("IOError:")
+            error("message:",e.message)
+            error("errno:",e.errno)
+            error("strerror:",e.strerror,"\n")
+            pass
+    if fromfile.closed:
+        error("%s is closed" % fromfile.name)
+    if tofile.closed:
+        error("%s is closed" % tofile.name)
 
 if __name__ == '__main__':
     from multiprocessing import Process
@@ -63,12 +75,9 @@ if __name__ == '__main__':
     import time
     time.sleep(1)
     tunnel_between(sys.argv[1], sys.argv[2], sys.argv[3])
-    # copy stdin to the device:
-    stdin2dev = Process(target=fpipe, args=(sys.stdin,tun,512))
-    stdin2dev.start()
     # read dev to stdout
-    stdout2dev = Process(target=fpipe, args=(tun,sys.stdout,512))
+    stdout2dev = Process(target=fpipe, args=(tun,sys.stdout,0))
     stdout2dev.start()
-
-    stdin2dev.join()
+    # copy stdin to the device:
+    fpipe(sys.stdin,tun,0)
     stdout2dev.join()
