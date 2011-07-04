@@ -12,7 +12,7 @@ REMOTEIP is the IP the DEVICE is to be configured with for the remote endpoint
 
 It goes without saying that LOCALIP is the remote side's REMOTEIP and the other way around. See example usage below if this is unclear.
 
-## Example Usage: SSH ##
+## Example Usage: SSH-based VPN tunnel ##
 
 Copy the script to the remote host:
 
@@ -50,10 +50,10 @@ If none of the above work for you, make sure you are
  * root on both hosts
  * have a passwordless root login on the remote host
 
-## Example Usage: CurveCP ##
+## Example Usage: CurveCP-based VPN tunnel ##
 
 ### DISCLAIMER: ###
-*For some reason, when used with CurveCP, this tunnel is not usable for most "normal" TCP traffic. ICMP ping works along with some very toy-ish netcat TCP. For the rest, I am slightly out of my league here, fork me!*
+*For some reason, when used with [CurveCP](http://curvecp.org), this tunnel is not usable for most "normal" TCP traffic. ICMP ping works along with some very toy-ish netcat TCP. For the rest, I am slightly out of my league here, fork me!*
 
 Here is how you might try to establish a CurveCP-based tunnel. Adapted from the CurveCP README:
 
