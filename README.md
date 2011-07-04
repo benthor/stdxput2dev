@@ -1,6 +1,16 @@
 # stdxput2dev #
 
-This is a pretty neat Python tool that creates a Linux tunnel device. Everything that is read from stdin is sent to the tunnel device, and everything that is read from the tunnel is written to stdout. This allows for an el-cheapo VPN-like tunnel over ssh or possibly plain netcat for instance.
+This is a pretty neat Python tool that creates a Linux tunnel device. Everything that is read from stdin is sent to the tunnel device, and everything that is read from the tunnel is written to stdout. This allows for an el-cheapo VPN-like tunnel over ssh or possibly plain netcat for instance. For this, the tool is invoked on both sides of the intended tunnel.
+
+## Invocation ##
+
+    usage: python stdxput2dev.py DEVICE LOCALIP REMOTEIP
+
+DEVICE is the name you want to give to the tunnel device (tun0 is a reasonable example)
+LOCALIP is the IP the DEVICE is to be configured with on the local side
+REMOTEIP is the IP the DEVICE is to be configured with for the remote endpoint
+
+It goes without saying that LOCALIP is the remote side's REMOTEIP and the other way around. See example usage below if this is unclear.
 
 ## Example Usage: SSH ##
 
