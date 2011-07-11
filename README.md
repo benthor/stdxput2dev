@@ -49,7 +49,7 @@ Obviously, you have to be root on the remote host. (Alternatively, you might do 
 
 I sometimes use the following contraction, which only uses a single shell window at a time:
 
-    mkdir sshfifo; cat sshfifo | sudo python stdxput2dev.py ssh0 10.0.0.1 10.0.0.2 | ssh root@remote.host "python /tmp/stdxput2dev.py ssh0 10.0.0.2 10.0.0.1" > sshfifo
+    mkfifo sshfifo; cat sshfifo | sudo python stdxput2dev.py ssh0 10.0.0.1 10.0.0.2 | ssh root@remote.host "python /tmp/stdxput2dev.py ssh0 10.0.0.2 10.0.0.1" > sshfifo
 
 If none of the above work for you, make sure you are
 
