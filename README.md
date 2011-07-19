@@ -12,11 +12,11 @@ REMOTEIP is the IP the DEVICE is to be configured with for the remote endpoint
 
 It goes without saying that LOCALIP is the remote side's REMOTEIP and the other way around. See example usage below if this is unclear.
 
-## DISCLAIMER ##
+## IMPORTANT ##
 
-**For reasons that are unclear to me, I have so far only been able to create a fully-working tunnel using an SSH-backend as detailled below.**
+If you decide to try this using netcat as a transport, be sure to *set the MTU of the created interface to 1024*. Like so:
 
-**When using plain netcat as backend seems to result in some race condition, where both sides end up waiting for each other to send (flush?). ICMP ping works fine using _any_ transport backend I tried, but any non-trivial TCP traffic sooner or later reaches deadlock.**
+    ifconfig DEVICE mtu 1024
 
 ## Example Usage: SSH-based VPN tunnel ##
 
@@ -58,14 +58,14 @@ If none of the above work for you, make sure you are
 
 ## Example Usage: CurveCP-based VPN tunnel ##
 
-### DISCLAIMER: ###
-*For some reason, when used with [CurveCP](http://curvecp.org), this tunnel is not usable for most "normal" TCP traffic. ICMP ping works along with some very toy-ish netcat TCP. For the rest, I am slightly out of my league here, fork me!*
+__Note that you *have* to set the MTU to 1024, because this is the maximum payload in bytes which fit inside a single CurveCP packet__
 
 Here is how you might try to establish a CurveCP-based tunnel. Adapted from the CurveCP README:
 
     curvecpmakekey serverkey
     curvecpprintkey serverkey > serverkey.hex
     curvecpserver this.machine.name serverkey 127.0.0.1 10000 31415926535897932384626433832795 curvecpmessage sh -c "python stdxput2dev.py ccp0 10.0.0.2 10.0.0.1" 
+    ifconfig ccp0 mtu 1024
 
 In another terminal, do:
 
