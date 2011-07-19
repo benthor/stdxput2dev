@@ -14,9 +14,11 @@ It goes without saying that LOCALIP is the remote side's REMOTEIP and the other 
 
 ## IMPORTANT ##
 
-If you decide to try this using netcat as a transport, be sure to *set the MTU of the created interface to 1024*. Like so:
+If you decide to try this using netcat or CurveCP as a transport, be sure to *set the MTU of the created interfaces to 1024*. Like so:
 
     ifconfig DEVICE mtu 1024
+
+Be sure to do this on both sides of the tunnel.
 
 ## Example Usage: SSH-based VPN tunnel ##
 
@@ -64,18 +66,25 @@ Here is how you might try to establish a CurveCP-based tunnel. Adapted from the 
 
     curvecpmakekey serverkey
     curvecpprintkey serverkey > serverkey.hex
-    curvecpserver this.machine.name serverkey 127.0.0.1 10000 31415926535897932384626433832795 curvecpmessage sh -c "python stdxput2dev.py ccp0 10.0.0.2 10.0.0.1" 
+    curvecpserver server.machine.name serverkey 192.168.0.1 10000 31415926535897932384626433832795 curvecpmessage sh -c "python stdxput2dev.py ccp0 10.0.0.2 10.0.0.1" 
     ifconfig ccp0 mtu 1024
 
-In another terminal, do:
+In order for the last command to succeed, the client has to establish a session with the server first. (Before a connection is made, the Python script does not get executed and the specified device will not have been created yet.)
 
-    curvecpclient this.machine.name `cat serverkey.hex` 127.0.0.1 10000 31415926535897932384626433832795 curvecpmessage -c sh -c "python stxput2dev.py ccp0 10.0.0.1 10.0.0.2 <&6 >&7"
+Copy serverkey.hex to the client machine and set up the client:
 
-Take care that the "serverkey.hex" is accessible from the second terminal.
+    curvecpclient server.machine.name `cat serverkey.hex` 192.168.0.1 10000 31415926535897932384626433832795 curvecpmessage -c sh -c "python stxput2dev.py ccp0 10.0.0.1 10.0.0.2 <&6 >&7"
+    ifconfig ccp0 mtu 1024
 
-Now test the tunnel by:
+Take care that the "serverkey.hex" is accessible from the current directory. Note that it probably doesn't make much sense to run server *and* client on the same host, because if both endpoints are local, nothing will get tunneled.
+
+Now test the tunnel from the client machine by:
 
     ping 10.0.0.2        
+
+Or possibly:
+
+    ssh 10.0.0.2
 
 
 ## Known Bugs And Problems ##
@@ -83,7 +92,6 @@ Now test the tunnel by:
 _LOADS. I am serious, this is very immature software, by any reasonable standard_
 
   * My file-descriptor/tunnel magic doesn't work on FreeBSD. Fork me!
-  * In the above example, if the process executing in a ptty is aborted, the client is sent into a busyloop and will only terminate if the server dies as well. Yes this is a bug, which I have yet failed to resolve. Fork me!
   * You need to be root on both local and the remote host to establish the tunnels.
-  * The throughput speeds possible here are quite slow. On a host that achieves 10MB/s over plain HTTP, the same transfer over an ssh-based tunnel only about 1.4MB/s. (SSH-based file copy also achieves 10MB/s)
+  * The throughput speeds possible here are quite low. On a host that achieves 10MB/s over plain HTTP, the same transfer over an ssh-based tunnel only about 1.4MB/s. (SSH-based file copy also achieves 10MB/s)
   * Proper error handling is missing in many cases, mostly due to my own ignorance about what needs to be checked. Fork me!
